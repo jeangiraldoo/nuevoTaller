@@ -9,31 +9,29 @@ package object ManiobrasTrenes {
 
   def aplicarMovimiento(e: Estado, m: Movimiento): Estado = {
     val (principal, uno, dos) = e
-
     m match {
       case Uno(n) if n > 0 =>
-        val (mover, quedarse) = principal.splitAt(n)
-        (quedarse, uno ++ mover, dos)
+        val k = math.min(n, principal.length)
+        (principal.dropRight(k), principal.takeRight(k) ++ uno, dos)
 
       case Uno(n) if n < 0 =>
-        val (mover, quedarse) = uno.splitAt(-n)
-        (mover ++ principal, quedarse, dos)
+        val k = math.min(-n, uno.length)
+        (principal ++ uno.take(k), uno.drop(k), dos)
 
       case Dos(n) if n > 0 =>
-        val (mover, quedarse) = principal.splitAt(n)
-        (quedarse, uno, dos ++ mover)
+        val k = math.min(n, principal.length)
+        (principal.dropRight(k), uno, principal.takeRight(k) ++ dos)
 
       case Dos(n) if n < 0 =>
-        val (mover, quedarse) = dos.splitAt(-n)
-        (mover ++ principal, uno, quedarse)
+        val k = math.min(-n, dos.length)
+        (dos.take(k) ++ principal, uno, dos.drop(k))
 
       case _ => e
     }
   }
 
-  def aplicarMovimientos(e: Estado, movs: List[Movimiento]): List[Estado] = {
+  def aplicarMovimientos(e: Estado, movs: List[Movimiento]): List[Estado] =
     movs.foldLeft(List(e)) { (estados, mov) =>
       estados :+ aplicarMovimiento(estados.last, mov)
     }
-  }
 }
